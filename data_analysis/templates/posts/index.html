@@ -1,0 +1,171 @@
+<html>
+<head>
+	<title>Mongodb数据分析</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="{{ url_for('static', filename='stylesheet/pure-min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheet/blue.css') }}">
+	<script src="//localhost:35729/livereload.js"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery-2.0.3.min.js') }}"></script>
+	{% block media %}
+	<link rel="stylesheet" href="{{ url_for('static', filename='stylesheet/toastr.css') }}">
+	<script type="text/javascript" src="{{ url_for('static', filename='javascript/amcharts.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='javascript/serial.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='javascript/pie.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='javascript/toastr.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='javascript/glimpse.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='javascript/glimpse.toastr.js') }}"></script>
+	{% endblock %}
+	<script type="text/javascript" src="{{ url_for('static', filename='javascript/main.js') }}"></script>
+</head>
+<body>
+<div class="pure-g-r" id="layout">
+	    <a href="#menu" id="menuLink" class="pure-menu-link">
+	    	<span></span>
+		</a>
+<div class="pure-u" id="menu">
+	    <div class="pure-menu pure-menu-open">
+	        <a class="pure-menu-heading" href="/">Demo</a>
+	        <ul>
+	            <li class="menu-item-divided">
+	                <a href="/mongo/">应用分布</a>
+	            </li>
+
+	            <li class="">
+	                <a href="/celery/">Celery</a>
+	            </li>
+
+	            <li class="">
+	                <a href="/d3/">调用分布</a>
+	            </li>
+
+	            <li class="">
+	                <a href="/trouble/">存在问题</a>
+	            </li>
+
+	            <li class="menu-item-divided">
+	                <a href="/avg/"><span class="ads-label-travel"></span>均值比较</a>
+	            </li>
+
+	            <li class="">
+	                <a href="/api/"><span class="ads-label-work"></span>接口比较</a>
+	            </li>
+
+	            <li class="">
+	                <a href="/solve/"><span class="ads-label-personal"></span>修改方案</a>
+	            </li>
+	        </ul>
+	    </div>
+	</div>
+<div class="pure-u-1" id="main">
+	<div class="header">
+	    <h1>{{ title }}</h1>
+
+
+	    <h2>{{ des }}</h2>
+
+	</div>
+	{% block body %}
+	{% block select %}
+	<form action="." method="post" class="pure-form" id="af">
+	    <fieldset>
+			<div class="pure-u-1-6">
+			<label for="vt">可选类型: </label>
+			<select id="vt">
+				{% for lt in l %}
+			    <option>{{ lt }}</option>
+				{% endfor %}
+			</select>
+			</div>
+			<div class="pure-u-1-6">
+			<label for="st">{{ first_type }}: </label>
+			<select id="st">
+			</select>
+			</div>
+			<div class="pure-u-1-6">
+			<label for="ct">画图类型: </label>
+			<select id="ct">
+			</select>
+			</div>
+	        <button id="cx" type="submit" class="pure-button pure-button-primary">查询</button>
+	    </fieldset>
+	</form>
+	{% endblock %}
+</div>
+<div class="pure-u-1" id="chart">
+	<div id="chartdiv" style="width: 100%; height: 750px;"></div>
+</div>
+{% endblock %}
+<div class="legal pure-g-r">
+    <div class="pure-u-2-5">
+        <div class="l-box">
+            <p class="legal-license">
+				This is a demonstration of qq.weibomaster.com site for data analysis<br>
+                It was created by <a href="mailto:ciici123@gmail.com">Dongweiming</a>.
+            </p>
+        </div>
+    </div>
+
+    <div class="pure-u-1-5">
+        <div class="l-box legal-logo">
+            <a href="http://www.dongwm.com/">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" height="100" width="180"
+                     alt="Ad logo">
+            </a>
+        </div>
+    </div>
+
+    <div class="pure-u-2-5">
+        <div class="l-box">
+            <ul class="legal-links">
+                <li><a href="http://www.dongwm.com">My site</a></li>
+            </ul>
+
+            <p class="legal-copyright">
+                &copy; 2013 dongwm.com  All rights reserved.
+            </p>
+        </div>
+    </div>
+</div>
+</div>
+<script type="text/javascript">
+$(function() {
+	var url = window.location.pathname;
+	$('#menu a[href$="' + url + '"]').attr('class', 'pure-menu-selected');
+	toastr.options = {
+		closeButton: true
+	}
+    toastr.options.showDuration = "300";
+    toastr.options.hideDuration = "1000";
+    toastr.options.timeOut = "5000";
+    toastr.options.extendedTimeOut = "1000";
+    toastr.options.showEasing = "swing";
+    toastr.options.hideEasing = "linear";
+    toastr.options.showMethod = "fadeIn";
+    toastr.options.hideMethod = "fadeOut";
+
+	SelectThis();
+
+	$('#menu li').click(function(e) {
+		$('#menu li').removeClass();
+		$(this).attr('class', 'pure-menu-selected');
+	});
+	$('#vt').change(function(e) {
+		e.preventDefault();
+		$('#st').empty();
+		$('#ct').empty();
+		SelectThis();
+		});
+
+	$('#st').change(function(e) {
+		$('#ct').empty();
+		e.preventDefault();
+		SelectThis($('#st').val());
+		});
+    $('#cx').click(function(e) {
+        e.preventDefault();
+		MyChart();
+    });
+});
+</script>
+</body>
+</html>

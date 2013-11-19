@@ -1,0 +1,50 @@
+{% extends "posts/index.html" %}
+{% block media %}
+<script type="text/javascript" src="{{ url_for('static', filename='javascript/d3.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='javascript/d3.geom.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='javascript/d3.layout.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='javascript/CodeFlower.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='javascript/dataConverter.js') }}"></script>
+<style type="text/css">
+circle.node {
+  cursor: pointer;
+  stroke: #000;
+  stroke-width: .5px;
+}
+
+circle.node.directory {
+  stroke: #9ecae1;
+  stroke-width: 2px;
+}
+
+circle.node.collapsed {
+  stroke: #555;
+}
+
+.nodetext {
+  fill: #252929;
+  font-weight: bold;
+  text-shadow: 0 0 0.2em white;
+}
+
+line.link {
+  fill: none;
+  stroke: #9ecae1;
+  stroke-width: 1.5px;
+}
+    </style>
+<script type="text/javascript">
+  
+  var currentCodeFlower;
+  var createCodeFlower = function(json) {
+    var total = countElements(json);
+    w = $("#chartdiv").width();
+    h = $("#chartdiv").height();
+    currentCodeFlower = new CodeFlower("#chartdiv", w, h).update(json);
+  };
+
+  d3.json("{{ url_for('static', filename='javascript/data.json') }}", createCodeFlower);
+</script>
+{% endblock %}
+{% block select %}
+{% endblock %}

@@ -8,11 +8,11 @@
 	    <p>本次问题分析主要来自索引的不合理或者没有索引的相关</p>
 	</aside>
 	<h2 id="inline-styles" class="content-subhead">索引字段不够(需要复合索引)<a href="#inline-styles" class="content-link"></a></h2>
-	<pre class="snippet" data-language="python"><code>sentiment/models.py 43-46行
+	<pre class="snippet" data-language="python"><code>xx/models.py 143-146行
 statuses = list(coll.find(                                                 
         {"is_update": False},                                                 
         {"uid": 1}                                                             
-    ).sort('cdate', -1).limit(200))</code></pre>
+    ).sort('date', -1).limit(200))</code></pre>
 	<pre class="snippet" data-language="python"><code>
 > db.status_5008fe57b3158aa4709ecd8f_201311.getIndexes()
 [
@@ -21,15 +21,15 @@ statuses = list(coll.find(
 		"key" : {
 			"_id" : 1
 		},
-		"ns" : "sandbox_opinion_dongwm.status_5008fe57b3158aa4709ecd8f_201311",
+		"ns" : "dongwm.status_5008fe57b3158aa4709ecd8f_201311",
 		"name" : "_id_"
 	},
 	{
 		"v" : 1,
 		"key" : {
-			"cdate" : -1
+			"date" : -1
 		},
-		"ns" : "sandbox_opinion_dongwm.status_5008fe57b3158aa4709ecd8f_201311",
+		"ns" : "dongwm.status_5008fe57b3158aa4709ecd8f_201311",
 		"name" : "cdate_-1"
 	},
 	{
@@ -37,23 +37,23 @@ statuses = list(coll.find(
 		"key" : {
 			"idate" : -1
 		},
-		"ns" : "sandbox_opinion_dongwm.status_5008fe57b3158aa4709ecd8f_201311",
+		"ns" : "dongwm.status_5008fe57b3158aa4709ecd8f_201311",
 		"name" : "idate_-1"
 	}
 ]
 		</code></pre>
 	<pre class="snippet" data-language="python"><code>
-db["status_5008fe57b3158aa4709ecd8f_201311"].ensureIndex({"is_update": 1, "cdate": 1}, {"background": true})
+db["status_5008fe57b3158aa4709ecd8f_201311"].ensureIndex({"is_update": 1, "date": 1}, {"background": true})
 		</code></pre>
 		<h2 id="inline-styles" class="content-subhead">没有索引<a href="#inline-none" class="content-link"></a></h2>
-		<pre class="snippet" data-language="python"><code>sentiment/tasks.py 551-564行
+		<pre class="snippet" data-language="python"><code>xx/tasks.py 551-564行
 pre_date = update_date - timedelta(hours=1)                            
-pre_infhotwordcoll = s_db["infhotword_%s_%s" % (                       
+pre_infcoll = s_db["inf_%s_%s" % (                       
     key["_id"], pre_date.strftime("%Y%m")                              
 )]                                                                     
-pre_hotwords = {}                                                      
-pre_infhotwords = (                                                    
-    pre_infhotwordcoll.find_one({                                      
+pre_ho = {}                                                      
+pre_inf = (                                                    
+    pre_infcoll.find_one({                                      
         "day": update_date.replace(                                    
             hour=0,                                                  
             minute=0,                                                 
@@ -63,22 +63,21 @@ pre_infhotwords = (
     }) or {}).get(str(pre_date.hour), [])
 			</code></pre>
 		<pre class="snippet" data-language="python"><code>
-> db.sandbox_opinion_dongwm.influence_51ee2552fb0dd8d290a7749a_201311.getIndexes()
+> db.dongwm.influence_51ee2552fb0dd8d290a7749a_201311.getIndexes()
 [ ]
 			</code></pre>
 		<pre class="snippet" data-language="python"><code>
-db["infhotword_51ee2552fb0dd8d290a7749a_201311"].ensureIndex({"day": 1}, {"background": true})
+db["inf_51ee2552fb0dd8d290a7749a_201311"].ensureIndex({"day": 1}, {"background": true})
 			</code></pre>
 		<h2 id="inline-styles" class="content-subhead">索引顺序问题<a href="#inline-none"
 class="content-link"></a></h2>
-	<pre class="snippet" data-language="python"><code>smdata/models.py 110-119行
-def get_original_statuses_id_list(uid, date):                                  
-    """ 获取用户发布的所有原创微博的id列表. """                                
-    return list(db.status.find(                                                                                         
+	<pre class="snippet" data-language="python"><code>xx/models.py 1110-1119行
+def get_o_s(uid, date):                                                                 
+    return list(db.st.find(                                                                                         
         {                                                                      
             'user_id': uid,                                                    
             'created_at': {'$gte': date},                                      
-            'retweeted_status_id': 0                                           
+            'rs': 0                                           
         },                                                                     
         {'rsince_timestamp': 1, 'csince_timestamp': 1, 'last_cid': 1}          
     ))   
@@ -91,13 +90,13 @@ def get_original_statuses_id_list(uid, date):
 		"key" : {
 			"_id" : 1
 		},
-		"ns" : "sandbox_whw.status",
+		"ns" : "dongwm.status",
 		"name" : "_id_"
 	}
 ]
 		</code></pre>
 	<pre class="snippet" data-language="python"><code>
-db["status"].ensureIndex({"user_id": 1, "retweeted_status_id": 1, "created_at": 1}, {"background": true})
+db["status"].ensureIndex({"user_id": 1, "rs": 1, "created_at": 1}, {"background": true})
 		</code></pre>
 		
 </div>

@@ -1,0 +1,1 @@
+{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "ns" : "fetch_data.celery", "name" : "_id_" }, { "v" : 1, "key" : { "time" : -1 }, "ns" : "fetch_data.celery", "name" : "time_-1" }, { "v" : 1, "key" : { "cost" : -1 }, "ns" : "fetch_data.celery", "name" : "cost_-1" }, { "v" : 1, "key" : { "task" : 1 }, "ns" : "fetch_data.celery", "name" : "task_1" } ] }
